@@ -1,0 +1,7 @@
+{
+	"nome": "Didio's American Burger",
+	"taxaFrete": 9.0,
+	"cozinha": {
+		"id": 20
+	}
+}
