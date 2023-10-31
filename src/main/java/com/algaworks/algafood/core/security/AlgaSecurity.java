@@ -6,13 +6,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
+import com.algaworks.algafood.domain.repository.PedidoRepository;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
+
+import io.swagger.annotations.Authorization;
 
 @Component
 public class AlgaSecurity {
 	
 	@Autowired
 	private RestauranteRepository restauranteRepository;
+	
+	@Autowired
+	private PedidoRepository pedidoRepository;
 	
 	public Authentication getAuthentication() {
 		return SecurityContextHolder.getContext().getAuthentication();
@@ -32,5 +38,31 @@ public class AlgaSecurity {
 		return restauranteRepository.existsResponsavel(restauranteId, getUsuarioId());
 		
 	}	
+	
+	public boolean gerenciaRestauranteDoPedido(String codidoPedido) {
+		
+		if(codidoPedido == null) {
+			return false;
+		}
+		return pedidoRepository.isPedidoGerenciadoPor(codidoPedido, getUsuarioId());
+	}
+	
+	public boolean usuarioAutenticadoIgual(Long usuarioId) {
+		return getUsuarioId() != null && usuarioId != null
+				&& getUsuarioId().equals(usuarioId);
+	}
+	
+	public boolean hasAuthority(String authorityName) {
+		return getAuthentication().getAuthorities().stream()
+				.anyMatch(authority -> authority.getAuthority().equals(authorityName));
+	}
+	
+	public boolean podeGerenciarPedidos(String codigoPedido) {
+		
+		return hasAuthority("SCOPE_WRITE") && (
+				hasAuthority("GERENCIAR_PEDIDOS") || 
+				gerenciaRestauranteDoPedido(codigoPedido)
+				);
+	}
 
 }
