@@ -20,6 +20,7 @@ import com.algaworks.algafood.api.v1.AlgaLinks;
 import com.algaworks.algafood.api.v1.assembler.UsuarioModelAssembler;
 import com.algaworks.algafood.api.v1.model.UsuarioModel;
 import com.algaworks.algafood.api.v1.openapi.controller.RestauranteUsuarioResponsavelControllerOpenApi;
+import com.algaworks.algafood.core.security.AlgaSecurity;
 import com.algaworks.algafood.core.security.CheckSecurity;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.service.CadastroRestauranteService;
@@ -37,6 +38,9 @@ public class RestauranteUsuarioResponsavelController implements RestauranteUsuar
 	@Autowired
 	private AlgaLinks algaLinks;
 	
+	@Autowired
+	private AlgaSecurity algaSecurity;
+	
 	@CheckSecurity.Restaurantes.PodeConsultar
 	@GetMapping
 	public CollectionModel<UsuarioModel> listar(@PathVariable Long restauranteId){
@@ -44,15 +48,21 @@ public class RestauranteUsuarioResponsavelController implements RestauranteUsuar
 		
 		CollectionModel<UsuarioModel> usuariosModel = usuarioModelAssembler.toCollectionModel(restaurante.getResponsaveis())
 				.removeLinks()
-				.add(algaLinks.linkToRestauranteUsuarioResponsavel(restauranteId))
-				.add(algaLinks.linkToRestauranteUsuarioResponsavelAssociacao(restauranteId, "associar"));
+				.add(algaLinks.linkToRestauranteUsuarioResponsavel(restauranteId));
 		
-		usuariosModel.getContent().forEach(usuarioModel -> {
-			usuarioModel.add(algaLinks.linkToRestauranteUsuarioResponsavelDesassociacao(restauranteId, usuarioModel.getId(), "desassociar"));
-		});
-		
+		if(algaSecurity.podeGerenciarCadastroRestaurantes()) {
+			usuariosModel.add(algaLinks.linkToRestauranteUsuarioResponsavelAssociacao(restauranteId, "associar"));
+	
+			usuariosModel.getContent().forEach(usuarioModel -> {
+					usuarioModel.add(algaLinks
+							.linkToRestauranteUsuarioResponsavelDesassociacao(restauranteId, usuarioModel.getId(), "desassociar"));
+		});	
+
+		}
+	
 		return usuariosModel;
 	}
+	
 	
 	@CheckSecurity.Restaurantes.PodeGerenciarCadastro
 	@PutMapping("/{usuarioId}")

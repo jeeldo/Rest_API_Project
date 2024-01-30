@@ -18,6 +18,7 @@ import com.algaworks.algafood.api.v1.controller.RestauranteController;
 import com.algaworks.algafood.api.v1.controller.UsuarioController;
 import com.algaworks.algafood.api.v1.model.PedidoModel;
 import com.algaworks.algafood.api.v1.model.PedidoResumoModel;
+import com.algaworks.algafood.core.security.AlgaSecurity;
 import com.algaworks.algafood.domain.model.Pedido;
 
 @Component
@@ -25,6 +26,9 @@ public class PedidoResumoModelAssembler extends RepresentationModelAssemblerSupp
 
 	@Autowired
 	private AlgaLinks algaLinks;
+	
+	@Autowired
+	private AlgaSecurity algaSecurity;
 	
 	public PedidoResumoModelAssembler() {
 		super(PedidoController.class, PedidoResumoModel.class);
@@ -37,11 +41,18 @@ public class PedidoResumoModelAssembler extends RepresentationModelAssemblerSupp
 		PedidoResumoModel pedidoResumoModel = createModelWithId(pedido.getCodigo(), pedido);
 		modelMapper.map(pedido, pedidoResumoModel);
 		
-		pedidoResumoModel.add(algaLinks.linkToPedidos("pedidos"));
+		if(algaSecurity.podePesquisarPedidos()) {
+			pedidoResumoModel.add(algaLinks.linkToPedidos("pedidos"));
+		}
+
+		if(algaSecurity.podeConsultarUsuariosGruposPermissoes()) {
+			pedidoResumoModel.getCliente().add(algaLinks.linkToUsuario(pedidoResumoModel.getCliente().getId()));
+		}
 		
-		pedidoResumoModel.getCliente().add(algaLinks.linkToUsuario(pedidoResumoModel.getCliente().getId()));
-		
-		pedidoResumoModel.getRestaurante().add(algaLinks.linkToRestaurante(pedidoResumoModel.getRestaurante().getId()));
+		if(algaSecurity.podeConsultarRestaurantes()) {
+			pedidoResumoModel.getRestaurante().add(algaLinks.linkToRestaurante(pedidoResumoModel.getRestaurante().getId()));
+		}
+
 		return pedidoResumoModel;
 	}
 	

@@ -85,7 +85,7 @@ public class SpringFoxConfig implements WebMvcConfigurer{
 						q -> q.name("Problema").namespace("com.algaworks.algafood.api.exceptionhandler")))));
 	}
 	
-//	@Bean
+	@Bean
 	public Docket apiDocketV1() {
 		
 		var typeResolver = new TypeResolver();
@@ -160,6 +160,7 @@ public class SpringFoxConfig implements WebMvcConfigurer{
 						new Tag("Permissoes", "Gerencia as Permissoes")
 						);
 	}
+	
 	
 	@Bean
 	public Docket apiDocketV2() {
