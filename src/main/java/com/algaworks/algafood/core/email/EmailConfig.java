@@ -14,11 +14,11 @@ public class EmailConfig {
 
 	@Autowired
 	private EmailProperties emailProperties;
-	
+
 	@Bean
 	public EnvioEmailService envioEmailService() {
 		switch (emailProperties.getImpl()) {
-			case FAKE: 
+			case FAKE:
 				return new FakeEnvioEmailService();
 			case SMTP:
 				return new SmtpEnvioEmailService();
@@ -28,5 +28,5 @@ public class EmailConfig {
 				return null;
 		}
 	}
-}
 
+}

@@ -27,6 +27,7 @@
 		<oauth2-oidc-sdk.version>10.4</oauth2-oidc-sdk.version>
 		<spring-security-oauth2.version>2.5.2.RELEASE</spring-security-oauth2.version>
 		<spring-security-jwt.version>1.0.11.RELEASE</spring-security-jwt.version>
+		<dockerfile-maven-version>1.4.13</dockerfile-maven-version>
 	</properties>
 
 	<dependencies>
@@ -211,6 +212,26 @@
 			<version>${spring-security-oauth2.version}</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		
+		<dependency>
+    		<groupId>com.spotify</groupId>
+    		<artifactId>dockerfile-maven-plugin</artifactId>
+    		<version>1.4.3</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.springframework.boot</groupId>
+    		<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.springframework.session</groupId>
+    		<artifactId>spring-session-data-redis</artifactId>
+		</dependency>
 	</dependencies>
 
 
@@ -226,6 +247,36 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<profiles>
+		<profile>
+			<id>docker</id>
+			<build>
+				<plugins>
+					<plugin>
+  						<groupId>com.spotify</groupId>
+  						<artifactId>dockerfile-maven-plugin</artifactId>
+ 			 			<version>${dockerfile-maven-version}</version>
+  						<executions>
+    						<execution>
+      							<id>default</id>
+      							<goals>
+        							<goal>build</goal>
+        							<goal>push</goal>
+      							</goals>
+    						</execution>
+  						</executions>
+  						<configuration>
+    						<repository>jeanrmsevero/rest-api</repository>
+    						<buildArgs>
+      							<JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+    						</buildArgs>
+  						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	
 
 </project>
